@@ -23,11 +23,18 @@ def getinfo():
     }
     response=requests.get(url, headers = headers)
     response.encoding = 'utf-8'
-    script = BeautifulSoup(response.text, 'html.parser').findAll("script")[8].text
-    account[0] = re.search(r"\"uid\":\"(.*?)\"", script).group()[7:12]
+    #老版本获取uid的代码，已废弃
+    #account[0] = re.search(r"\"uid\":\"(.*?)\"", script).group()[7:12]
     try:
-        temp = re.search(r"oldInfo: {(.*?)},$", script, re.MULTILINE).group()
-        payload = eval(temp[9:len(temp)-1])
+        script = BeautifulSoup(response.text, 'html.parser').findAll("script")[8].text
+        oldInfo = re.search(r"oldInfo: {(.*?)},$", script, re.MULTILINE).group()
+        newData = re.search(r"def = {(.*?)};$", script, re.MULTILINE).group()
+        newPayload = eval(newData[6:len(newData)-1])
+        payload = eval(oldInfo[9:len(oldInfo)-1])
+        t = time.strftime("%Y%m%d", time.localtime())
+        payload['date'] = t
+        payload['created'] = newPayload['created']
+        payload['id'] = newPayload['id']
     except:
         print('获取上次打卡信息异常')
         mailsend('获取上次打卡信息异常', account[2])
@@ -100,7 +107,6 @@ def post(cookie,flag,uid,receiver):
                 "Cookie": cookie
                 }
             url = "https://app.nwafu.edu.cn/ncov/wap/default/save"
-            t = time.strftime("%Y%m%d", time.localtime())
             
             response = requests.post(url, data=payload, headers=headers).text
 
