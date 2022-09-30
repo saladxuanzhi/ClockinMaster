@@ -1,4 +1,4 @@
-# Clockin-releaseEdition
+# Clockin-releasedEdition
 ### NWAFU自动打卡
 > 本程序在Python3.6.8环境下开发
 
